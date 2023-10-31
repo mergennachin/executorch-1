@@ -49,10 +49,6 @@ from executorch.exir.tests.dynamic_shape_models import BatchNormModel
 from executorch.exir.tests.transformer import Transformer
 from functorch.experimental.control_flow import cond
 
-# The module itself is not used directly. But we need the side effect of importing
-# it so the get_scratch_metas methods are attached to out variant ops.
-from . import register_scratch_meta_fns
-
 kernel_mode = None  # either aten mode or lean mode
 try:
     # pyre-ignore[21]

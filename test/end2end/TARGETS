@@ -58,7 +58,6 @@ python_unittest(
         "//executorch/exir/tests:transformer",
         "//executorch/extension/pybindings:aten_lib",
         "//executorch/extension/pytree:pybindings",
-        "//executorch/kernels/portable:custom_ops_generated_lib",
     ],
 )
 
@@ -90,6 +89,5 @@ python_unittest(
         "//executorch/exir/tests:transformer",
         "//executorch/extension/pybindings:portable_lib",
         "//executorch/extension/pytree:pybindings",
-        "//executorch/kernels/portable:custom_ops_generated_lib",
     ],
 )
