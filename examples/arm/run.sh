@@ -28,7 +28,7 @@ setup_path_script=${root_dir}/setup_path.sh
 
 # Executorch
 et_root_dir=$(cd ${script_dir}/../.. && pwd)
-et_build_dir=${root_dir}/cmake-out
+et_build_dir=${root_dir}/executorch-cmake-out
 
 fvp_model=FVP_Corstone_SSE-300_Ethos-U55
 toolchain_cmake=${script_dir}/ethos-u-setup/arm-none-eabi-gcc.cmake
@@ -61,7 +61,7 @@ function build_executorch() {
     cd "${et_build_dir}"
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
-        -DCMAKE_INSTALL_PREFIX=cmake-out \
+        -DCMAKE_INSTALL_PREFIX=cmake-out                  \
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
@@ -96,9 +96,9 @@ function build_executorch() {
         -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
+        -DEXECUTORCH_SELECT_OPS_LIST="aten::_softmax.out" \
         -DFLATC_EXECUTABLE="$(which flatc)"               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
-        -DEXECUTORCH_SELECT_OPS_LIST="aten::_softmax.out" \
         -B${et_build_dir}/examples/arm \
         "${et_root_dir}"/examples/arm
 
