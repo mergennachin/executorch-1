@@ -13,9 +13,6 @@ cmake_minimum_required(VERSION 3.19)
 project(arm_example)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 17)
-endif()
 
 if(NOT PYTHON_EXECUTABLE)
   set(PYTHON_EXECUTABLE python3)
