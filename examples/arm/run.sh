@@ -69,10 +69,39 @@ function build_executorch() {
         -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
-        -DEXECUTORCH_SELECT_OPS_LIST="aten::_softmax.out" \
         -DFLATC_EXECUTABLE="$(which flatc)"               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
         "${et_root_dir}"
+
+    cmake                                                 \
+        -DBUCK2=${buck2}                                  \
+        -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
+        -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
+        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
+        -DEXECUTORCH_BUILD_HOST_TARGETS=OFF               \
+        -DEXECUTORCH_BUILD_SDK=OFF                        \
+        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
+        -DCMAKE_BUILD_TYPE=Release                        \
+        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
+        -DFLATC_EXECUTABLE="$(which flatc)"               \
+        -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
+        -Bbackends/arm \
+        "${et_root_dir}"/backends/arm
+
+    cmake                                                 \
+        -DBUCK2=${buck2}                                  \
+        -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
+        -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
+        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
+        -DEXECUTORCH_BUILD_HOST_TARGETS=OFF               \
+        -DEXECUTORCH_BUILD_SDK=OFF                        \
+        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
+        -DCMAKE_BUILD_TYPE=Release                        \
+        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
+        -DFLATC_EXECUTABLE="$(which flatc)"               \
+        -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
+        -Bbackends/arm \
+        "${et_root_dir}"/examples/arm
 
     echo "[${FUNCNAME[0]}] Configured CMAKE"
 

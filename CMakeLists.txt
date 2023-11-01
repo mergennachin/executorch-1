@@ -340,13 +340,6 @@ if(EXECUTORCH_BUILD_QNN)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/examples/qualcomm)
 endif()
 
-# Build Arm Baremetal backend
-option(EXECUTORCH_BUILD_ARM_BAREMETAL
-       "Build the Arm Baremetal flow for Cortex-M and Ethos-U" OFF)
-if(EXECUTORCH_BUILD_ARM_BAREMETAL)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/backends/arm)
-endif()
-
 option(EXECUTORCH_BUILD_MPS "Build the backends/apple/mps directory" OFF)
 if(EXECUTORCH_BUILD_MPS)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/backends/apple/mps)
