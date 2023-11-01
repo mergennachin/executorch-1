@@ -5,7 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-set -eux
+set -eu
 
 if [[ "${1:-'.'}" == "-h" || "${#}" -gt 2 ]]; then
     echo "Usage: $(basename $0) [path-to-a-scratch-dir] [buck2 binary]"
@@ -74,7 +74,6 @@ function build_executorch() {
 
     n=$(nproc)
     cmake --build ${et_build_dir} --target install -- -j"$((n - 5))"
-    echo FIRST STEP DONE====================
 
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
@@ -86,7 +85,6 @@ function build_executorch() {
         -B${et_build_dir}/backends/arm \
         "${et_root_dir}"/backends/arm
     cmake --build ${et_build_dir}/backends/arm -- -j"$((n - 5))"
-    echo SECOND STEP DONE====================
 
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
@@ -105,7 +103,6 @@ function build_executorch() {
         "${et_root_dir}"/examples/arm
 
     cmake --build ${et_build_dir}/examples/arm -- -j"$((n - 5))"
-    echo THIRD STEP DONE====================
 
     echo "[${FUNCNAME[0]}] Generated static libraries for ExecuTorch:"
     find . -name "*.a" -exec ls -al {} \;
