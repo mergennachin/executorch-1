@@ -5,7 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-set -eu
+set -eux
 
 if [[ "${1:-'.'}" == "-h" || "${#}" -gt 2 ]]; then
     echo "Usage: $(basename $0) [path-to-a-scratch-dir] [buck2 binary]"
@@ -58,55 +58,57 @@ function build_executorch() {
         && echo "[${FUNCNAME[0]}] Warn: using already existing build-dir for executorch: ${et_build_dir}!!"
     mkdir -p "${et_build_dir}"
 
-    cd "${et_build_dir}"
+    cd "${et_root_dir}"
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
-        -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
-        -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
+        -DCMAKE_INSTALL_PREFIX=executorch-cmake-out \
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
-        -DEXECUTORCH_BUILD_HOST_TARGETS=OFF               \
-        -DEXECUTORCH_BUILD_SDK=OFF                        \
-        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
         -DFLATC_EXECUTABLE="$(which flatc)"               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
+        -B${et_build_dir} \
         "${et_root_dir}"
-
-    cmake                                                 \
-        -DBUCK2=${buck2}                                  \
-        -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
-        -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
-        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
-        -DEXECUTORCH_BUILD_HOST_TARGETS=OFF               \
-        -DEXECUTORCH_BUILD_SDK=OFF                        \
-        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
-        -DCMAKE_BUILD_TYPE=Release                        \
-        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
-        -DFLATC_EXECUTABLE="$(which flatc)"               \
-        -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
-        -Bbackends/arm \
-        "${et_root_dir}"/backends/arm
-
-    cmake                                                 \
-        -DBUCK2=${buck2}                                  \
-        -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
-        -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
-        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
-        -DEXECUTORCH_BUILD_HOST_TARGETS=OFF               \
-        -DEXECUTORCH_BUILD_SDK=OFF                        \
-        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
-        -DCMAKE_BUILD_TYPE=Release                        \
-        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
-        -DFLATC_EXECUTABLE="$(which flatc)"               \
-        -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
-        -Bbackends/arm \
-        "${et_root_dir}"/examples/arm
 
     echo "[${FUNCNAME[0]}] Configured CMAKE"
 
     n=$(nproc)
-    cmake --build . -- -j"$((n - 5))"
+    cmake --build ${et_build_dir} --target install -- -j"$((n - 5))"
+    echo FIRST STEP DONE====================
+
+    cmake                                                 \
+        -DBUCK2=${buck2}                                  \
+        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
+        -DCMAKE_INSTALL_PREFIX=executorch-cmake-out \
+        -DCMAKE_BUILD_TYPE=Release                        \
+        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
+        -DFLATC_EXECUTABLE="$(which flatc)"               \
+        -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
+        -B${et_build_dir}/backends/arm \
+        "${et_root_dir}"/backends/arm
+    cmake --build ${et_build_dir}/backends/arm -- -j"$((n - 5))"
+    echo SECOND STEP DONE====================
+
+    cmake                                                 \
+        -DBUCK2=${buck2}                                  \
+        -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
+        -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
+        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
+        -DEXECUTORCH_BUILD_HOST_TARGETS=OFF               \
+        -DEXECUTORCH_BUILD_SDK=OFF                        \
+        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
+        -DCMAKE_BUILD_TYPE=Release                        \
+        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
+        -DFLATC_EXECUTABLE="$(which flatc)"               \
+        -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
+        -DEXECUTORCH_SELECT_OPS_LIST="aten::_softmax.out" \
+        -DCMAKE_INSTALL_PREFIX=executorch-cmake-out \
+        -B${et_build_dir}/examples/arm \
+        "${et_root_dir}"/examples/arm
+
+    cmake --build ${et_build_dir}/examples/arm -- -j"$((n - 5))"
+    echo THIRD STEP DONE====================
+
     echo "[${FUNCNAME[0]}] Generated static libraries for ExecuTorch:"
     find . -name "*.a" -exec ls -al {} \;
 }
