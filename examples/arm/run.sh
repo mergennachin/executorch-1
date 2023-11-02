@@ -5,7 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-set -eu
+set -eux
 
 if [[ "${1:-'.'}" == "-h" || "${#}" -gt 2 ]]; then
     echo "Usage: $(basename $0) [path-to-a-scratch-dir] [buck2 binary]"
@@ -61,7 +61,7 @@ function build_executorch() {
     cd "${et_root_dir}"
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
-        -DCMAKE_INSTALL_PREFIX="${et_root_dir}"/cmake-out \
+        -DCMAKE_INSTALL_PREFIX=cmake-out \
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
@@ -88,12 +88,8 @@ function build_executorch() {
 
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
-        -DCMAKE_INSTALL_PREFIX="${et_root_dir}"/cmake-out \
-        -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
-        -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
+        -DCMAKE_INSTALL_PREFIX=cmake-out \
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
-        -DEXECUTORCH_BUILD_HOST_TARGETS=OFF               \
-        -DEXECUTORCH_BUILD_SDK=OFF                        \
         -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
@@ -101,6 +97,7 @@ function build_executorch() {
         -DFLATC_EXECUTABLE="$(which flatc)"               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
         -B${et_build_dir}/examples/arm \
+        -Dexecutorch_DIR="${et_root_dir}"/build \
         "${et_root_dir}"/examples/arm --debug-find
     cmake --build ${et_build_dir}/examples/arm -- -j"$((n - 5))"
 
