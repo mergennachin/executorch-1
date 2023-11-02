@@ -65,6 +65,7 @@ function build_executorch() {
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
+        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DFLATC_EXECUTABLE="$(which flatc)"               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
         -B${et_build_dir} \
@@ -74,17 +75,6 @@ function build_executorch() {
 
     n=$(nproc)
     cmake --build ${et_build_dir} --target install -- -j"$((n - 5))"
-
-    cmake                                                 \
-        -DBUCK2=${buck2}                                  \
-        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
-        -DCMAKE_BUILD_TYPE=Release                        \
-        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
-        -DFLATC_EXECUTABLE="$(which flatc)"               \
-        -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
-        -B${et_build_dir}/backends/arm \
-        "${et_root_dir}"/backends/arm
-    cmake --build ${et_build_dir}/backends/arm -- -j"$((n - 5))"
 
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
