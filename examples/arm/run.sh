@@ -77,11 +77,9 @@ function build_executorch() {
     cmake --build ${et_build_dir} --target install --config Release -- -j"$((n - 5))"
 
     cmake                                                 \
-        -DBUCK2=${buck2}                                  \
         -DCMAKE_INSTALL_PREFIX=cmake-out                  \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_SELECT_OPS_LIST="aten::_softmax.out" \
-        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
         -B"${et_build_dir}"/examples/arm                  \
         -Dexecutorch_DIR="${et_root_dir}"/build           \
