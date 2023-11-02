@@ -61,36 +61,34 @@ function build_executorch() {
     cd "${et_root_dir}"
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
-        -DCMAKE_INSTALL_PREFIX=cmake-out \
+        -DCMAKE_INSTALL_PREFIX=cmake-out                  \
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
         -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DFLATC_EXECUTABLE="$(which flatc)"               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
-        -B${et_build_dir} \
+        -B${et_build_dir}                                 \
         "${et_root_dir}"
 
     echo "[${FUNCNAME[0]}] Configured CMAKE"
 
     n=$(nproc)
-    cmake --build ${et_build_dir} --target install -- -j"$((n - 5))"
+    cmake --build ${et_build_dir} --target install --config Release -- -j"$((n - 5))"
 
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
-        -DCMAKE_INSTALL_PREFIX=cmake-out \
-        -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
-        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
+        -DCMAKE_INSTALL_PREFIX=cmake-out                  \
         -DCMAKE_BUILD_TYPE=Release                        \
-        -DEXECUTORCH_ENABLE_LOGGING=ON                    \
         -DEXECUTORCH_SELECT_OPS_LIST="aten::_softmax.out" \
-        -DFLATC_EXECUTABLE="$(which flatc)"               \
+        -DEXECUTORCH_BUILD_ARM_BAREMETAL=ON               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
-        -B${et_build_dir}/examples/arm \
-        -Dexecutorch_DIR="${et_root_dir}"/build \
-        "${et_root_dir}"/examples/arm --debug-find
+        -B"${et_build_dir}"/examples/arm                  \
+        -Dexecutorch_DIR="${et_root_dir}"/build           \
+        "${et_root_dir}"/examples/arm
     cmake --build ${et_build_dir}/examples/arm -- -j"$((n - 5))"
 
+    cd "${et_build_dir}"
     echo "[${FUNCNAME[0]}] Generated static libraries for ExecuTorch:"
     find . -name "*.a" -exec ls -al {} \;
 }
