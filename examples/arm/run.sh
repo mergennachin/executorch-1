@@ -58,10 +58,10 @@ function build_executorch() {
         && echo "[${FUNCNAME[0]}] Warn: using already existing build-dir for executorch: ${et_build_dir}!!"
     mkdir -p "${et_build_dir}"
 
-    cd "${et_build_dir}"
+    cd "${et_root_dir}"
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
-        -DCMAKE_INSTALL_PREFIX=cmake-out                  \
+        -DCMAKE_INSTALL_PREFIX="${et_root_dir}"/cmake-out \
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
         -DCMAKE_BUILD_TYPE=Release                        \
         -DEXECUTORCH_ENABLE_LOGGING=ON                    \
@@ -88,6 +88,7 @@ function build_executorch() {
 
     cmake                                                 \
         -DBUCK2=${buck2}                                  \
+        -DCMAKE_INSTALL_PREFIX="${et_root_dir}"/cmake-out \
         -DEXECUTORCH_BUILD_XNNPACK=OFF                    \
         -DEXECUTORCH_BUILD_GFLAGS=OFF                     \
         -DEXECUTORCH_BUILD_EXECUTOR_RUNNER=OFF            \
@@ -100,8 +101,7 @@ function build_executorch() {
         -DFLATC_EXECUTABLE="$(which flatc)"               \
         -DCMAKE_TOOLCHAIN_FILE="${toolchain_cmake}"       \
         -B${et_build_dir}/examples/arm \
-        "${et_root_dir}"/examples/arm
-
+        "${et_root_dir}"/examples/arm --debug-find
     cmake --build ${et_build_dir}/examples/arm -- -j"$((n - 5))"
 
     echo "[${FUNCNAME[0]}] Generated static libraries for ExecuTorch:"
