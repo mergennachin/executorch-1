@@ -5,7 +5,7 @@
 # This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
 
-set -eux
+set -eu
 
 if [[ "${1:-'.'}" == "-h" || "${#}" -gt 2 ]]; then
     echo "Usage: $(basename $0) [path-to-a-scratch-dir] [buck2 binary]"
@@ -71,10 +71,12 @@ function build_executorch() {
         -B${et_build_dir}                                 \
         "${et_root_dir}"
 
-    echo "[${FUNCNAME[0]}] Configured CMAKE"
+    echo "[${FUNCNAME[0]}] Configured CMAKE on root"
 
     n=$(nproc)
     cmake --build ${et_build_dir} --target install --config Release -- -j"$((n - 5))"
+
+    echo "[${FUNCNAME[0]}] Built executorch library with arm backend"
 
     cmake                                                 \
         -DCMAKE_INSTALL_PREFIX=cmake-out                  \
@@ -84,7 +86,12 @@ function build_executorch() {
         -B"${et_build_dir}"/examples/arm                  \
         -Dexecutorch_DIR="${et_root_dir}"/build           \
         "${et_root_dir}"/examples/arm
+
+    echo "[${FUNCNAME[0]}] Configured CMAKE on examples/arm"
+
     cmake --build ${et_build_dir}/examples/arm -- -j"$((n - 5))"
+
+    echo "[${FUNCNAME[0]}] Built ops lib for arm backend"
 
     cd "${et_build_dir}"
     echo "[${FUNCNAME[0]}] Generated static libraries for ExecuTorch:"
